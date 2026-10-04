@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PhD Application Tracker (Calendar sync)</title>
+<style>
+:root{--bg:#fafaf9;--card:#fff;--ink:#1c1c1a;--mute:#76766f;--line:#e7e5e0;--acc:#2f5d50;--warn:#b4531a;--warnbg:#fdf1e7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#1e1e1c;--ink:#ecebe6;--mute:#9a9992;--line:#2e2e2b;--acc:#7fb8a6;--warn:#e8925a;--warnbg:#2b2018}}
+:root[data-theme="dark"]{--bg:#161615;--card:#1e1e1c;--ink:#ecebe6;--mute:#9a9992;--line:#2e2e2b;--acc:#7fb8a6;--warn:#e8925a;--warnbg:#2b2018}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+main{max-width:1400px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 20px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-width:92px}
+.stat b{display:block;font-size:20px;font-weight:600}
+.stat span{color:var(--mute);font-size:12px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+button,select,input{font:inherit;color:var(--ink)}
+.btn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn:hover{border-color:var(--mute)}
+.btn.p{background:var(--acc);border-color:var(--acc);color:var(--bg);font-weight:500}
+.bar input[type=search]{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 10px;min-width:200px}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:1900px}
+th{position:sticky;top:0;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--card)}
+td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td input,td select,td textarea{width:100%;border:1px solid transparent;background:transparent;border-radius:6px;padding:5px 6px;font:inherit;color:var(--ink)}
+td textarea{resize:vertical;min-height:30px;height:30px}
+td input:hover,td select:hover,td textarea:hover{border-color:var(--line)}
+td input:focus,td select:focus,td textarea:focus{outline:none;border-color:var(--acc);background:var(--bg)}
+td input:disabled{opacity:.35}
+select option{background:var(--card);color:var(--ink)}
+.c-name{min-width:170px}.c-link{min-width:150px}.c-date{min-width:130px}.c-sel{min-width:92px}.c-docs{min-width:170px}.c-num{width:70px}.c-fee{min-width:110px}.c-st{min-width:130px}
+tr.rem td:first-child{box-shadow:inset 3px 0 var(--warn)}
+tr.rem{background:var(--warnbg)}
+tr.dim{opacity:.55}
+.sortable{cursor:pointer;user-select:none}.sortable:hover{color:var(--ink)}.sortable i{font-style:normal;margin-left:4px;color:var(--acc)}
+.psort{cursor:pointer;user-select:none}.psort:hover{color:var(--ink)}.psort i{font-style:normal;margin-left:4px;color:var(--acc)}
+#ptable{min-width:1650px}#stable{min-width:2760px}#gtable{min-width:2460px}.gsort{cursor:pointer;user-select:none}.gsort:hover{color:var(--ink)}.gsort i{font-style:normal;margin-left:4px;color:var(--acc)}.gfilter b{font-weight:600}.gfilter select{max-width:240px}.ssort{cursor:pointer;user-select:none}.ssort:hover{color:var(--ink)}.ssort i{font-style:normal;margin-left:4px;color:var(--acc)}
+h2{font-size:18px;font-weight:600;margin:44px 0 4px;letter-spacing:-.01em}
+tr.fu{background:var(--warnbg)}tr.fu td:first-child{box-shadow:inset 3px 0 var(--warn)}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:8px;flex-wrap:wrap;padding:10px 0;margin:0 0 14px;border-bottom:1px solid var(--line)}.jump a{color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;font-size:13px}.jump a:hover{border-color:var(--acc);color:var(--acc)}
+.sync{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px}.sync .r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sync input[type=text]{flex:1;min-width:260px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 10px}#sst{color:var(--mute);font-size:12px}#sst.err{color:var(--warn)}.sync details{margin-top:8px;color:var(--mute);font-size:13px}.sync summary{cursor:pointer}.sync ol{margin:6px 0 0;padding-left:20px}.sync code{background:var(--bg);padding:1px 5px;border-radius:4px}
+.dl{display:block;font-size:11px;color:var(--mute);padding:0 6px}
+.dl.urg{color:var(--warn);font-weight:600}
+.open{font-size:12px;color:var(--acc);text-decoration:none;padding:0 6px}
+.x{background:none;border:0;color:var(--mute);cursor:pointer;font-size:18px;padding:4px 8px}
+.x:hover{color:var(--warn)}
+.empty{padding:40px;text-align:center;color:var(--mute)}
+.hint{color:var(--mute);font-size:12px;margin-top:12px}
+.s-Submitted select.st{color:var(--acc);font-weight:600}
+.s-Rejected select.st{color:var(--warn)}
+</style>
+</head>
+<body>
+<main>
+<h1>PhD Application Tracker</h1>
+<p class="sub">Everything in one place. Edits save automatically in this browser.</p>
+<nav class="jump"><a href="#s-apps">Applications</a><a href="#s-profs">Professors</a><a href="#s-schol">Scholarships</a><a href="#s-progs">University programs</a><a href="#">↑ Top</a></nav>
+<div class="sync"><div class="r"><b>Google Calendar sync</b>
+<input type="text" id="cid" placeholder="Paste your Google OAuth Client ID">
+<button class="btn p" id="gcon">Connect</button><button class="btn" id="gall">Sync all now</button>
+<label><input type="checkbox" id="auto" checked> auto-sync on edit</label><span id="sst">Not connected</span></div>
+<details><summary>One-time setup (about 10 minutes)</summary><ol>
+<li>Open <code>console.cloud.google.com</code>, create a project, and enable the <b>Google Calendar API</b> (APIs &amp; Services → Library).</li>
+<li>Set up the OAuth consent screen: type External, add yourself as a <b>test user</b>, and add the scope <code>.../auth/calendar.events</code>.</li>
+<li>Credentials → Create credentials → OAuth client ID → <b>Web application</b>. Under Authorized JavaScript origins add the address you open this page from, for example <code>http://localhost:8000</code> or <code>https://yourname.github.io</code> (no path).</li>
+<li>Serve this file over http(s), since sign-in does not work from a file:// address. Locally: run <code>python3 -m http.server 8000</code> in the file's folder and open <code>http://localhost:8000/phd-tracker-sync.html</code>.</li>
+<li>Paste the Client ID above and click Connect. Events are timed 9:00 to 9:30 with popup alerts, and are updated or removed when you change or clear a date.</li></ol></details></div>
+<div class="stats" id="stats"></div>
+<div class="bar gfilter"><b>Filter all sections:</b>
+  <select class="btn" id="gc"><option value="">All countries</option></select>
+  <select class="btn" id="gu"><option value="">All universities</option></select>
+  <button class="btn" id="gclear">Clear filters</button>
+  <button class="btn" id="bk">Backup (JSON)</button><button class="btn" id="rs">Restore backup</button><input type="file" id="rsf" accept=".json" hidden>
+</div>
+<h2 id="s-apps" style="margin-top:28px">PhD applications</h2>
+<div class="bar">
+  <button class="btn p" id="add">+ Add application</button>
+  <input type="search" id="q" placeholder="Search projects…">
+  <select class="btn" id="f"><option value="">All statuses</option></select>
+  <button class="btn" id="ics" title="Import this file into Google Calendar">Export all to calendar (.ics)</button>
+  <button class="btn" id="csv">Export CSV</button>
+</div>
+<div class="wrap"><table>
+<thead><tr><th></th><th class="sortable" data-k="name">Project<i></i></th><th class="sortable" data-k="univ">University<i></i></th><th class="sortable" data-k="country">Country<i></i></th><th class="sortable" data-k="link">Link<i></i></th><th class="sortable" data-k="deadline">Deadline<i></i></th><th class="sortable" data-k="reminder">Reminder<i></i></th><th class="sortable" data-k="english">English<i></i></th><th class="sortable" data-k="docs">Other documents<i></i></th><th class="sortable" data-k="lom">LoM<i></i></th><th class="sortable" data-k="proposal">Proposal<i></i></th><th class="sortable" data-k="recs">Rec. letters<i></i></th><th class="sortable" data-k="recCount">How many<i></i></th><th class="sortable" data-k="cover">Cover letter<i></i></th><th class="sortable" data-k="fee">App fee<i></i></th><th class="sortable" data-k="status">Status<i></i></th><th class="sortable" data-k="notes">Notes<i></i></th><th></th></tr></thead>
+<tbody id="rows"></tbody>
+</table><div class="empty" id="empty" hidden>No applications yet. Click “Add application”.</div></div>
+<p class="hint">Click any column header to sort (A→Z / earliest first, click again to reverse, a third time to clear). Rows highlight orange when the reminder date has arrived and the application is still open. Data is stored locally in this browser, so use Export CSV for backups.</p>
+<h2 id="s-profs">Professors emailed</h2>
+<p class="sub">Track outreach and follow-ups. A row highlights when you emailed a week ago or more and haven't sent a reminder.</p>
+<div class="bar">
+  <button class="btn p" id="padd">+ Add professor</button>
+  <input type="search" id="pq" placeholder="Search professors, labs…">
+  <button class="btn" id="pcsv">Export CSV</button>
+</div>
+<div class="wrap"><table id="ptable"><thead><tr><th></th><th class="psort" data-k="name">Professor<i></i></th><th class="psort" data-k="univ">University<i></i></th><th class="psort" data-k="country">Country<i></i></th><th class="psort" data-k="lab">Lab<i></i></th><th class="psort" data-k="labLink">Lab link<i></i></th><th class="psort" data-k="dept">Department<i></i></th><th class="psort" data-k="deptLink">Department link<i></i></th><th class="psort" data-k="scholar">Google Scholar<i></i></th><th class="psort" data-k="emailed">Emailed?<i></i></th><th class="psort" data-k="emailDate">Date emailed<i></i></th><th class="psort" data-k="reminderSent">Reminder sent?<i></i></th><th class="psort" data-k="notes">Notes<i></i></th><th></th></tr></thead><tbody id="prows"></tbody></table><div class="empty" id="pempty" hidden>No professors yet. Click “Add professor”.</div></div>
+<h2 id="s-schol">Scholarships</h2>
+<p class="sub">Funding opportunities and what each one requires.</p>
+<div class="bar">
+  <button class="btn p" id="sadd">+ Add scholarship</button>
+  <input type="search" id="sq" placeholder="Search scholarships…">
+  <select class="btn" id="sf"><option value="">All statuses</option></select>
+  <button class="btn" id="scsv">Export CSV</button>
+</div>
+<div class="wrap"><table id="stable"><thead><tr><th></th><th class="ssort" data-k="name">Scholarship<i></i></th><th class="ssort" data-k="link">Link<i></i></th><th class="ssort" data-k="univ">University<i></i></th><th class="ssort" data-k="country">Country<i></i></th><th class="ssort" data-k="program">Program<i></i></th><th class="ssort" data-k="deadline">Deadline<i></i></th><th class="ssort" data-k="reminder">Reminder<i></i></th><th class="ssort" data-k="english">English<i></i></th><th class="ssort" data-k="docs">Other documents<i></i></th><th class="ssort" data-k="lom">LoM<i></i></th><th class="ssort" data-k="proposal">Proposal<i></i></th><th class="ssort" data-k="recs">Rec. letters<i></i></th><th class="ssort" data-k="recCount">How many<i></i></th><th class="ssort" data-k="recsSent">Rec. sent?<i></i></th><th class="ssort" data-k="cover">Cover letter<i></i></th><th class="ssort" data-k="fee">App fee<i></i></th><th class="ssort" data-k="uniApp">Uni. program app needed?<i></i></th><th class="ssort" data-k="uniApplied">Applied to program?<i></i></th><th class="ssort" data-k="status">Status<i></i></th><th class="ssort" data-k="notes">Notes<i></i></th><th></th></tr></thead><tbody id="srows"></tbody></table><div class="empty" id="sempty" hidden>No scholarships yet. Click “Add scholarship”.</div></div>
+<h2 id="s-progs">University program applications</h2>
+<p class="sub">Applications made directly to a university's program.</p>
+<div class="bar">
+  <button class="btn p" id="gadd">+ Add program</button>
+  <input type="search" id="gq" placeholder="Search programs…">
+  <select class="btn" id="gsf"><option value="">All statuses</option></select>
+  <button class="btn" id="gcsv">Export CSV</button>
+</div>
+<div class="wrap"><table id="gtable"><thead><tr><th></th><th class="gsort" data-k="name">Program<i></i></th><th class="gsort" data-k="link">Link<i></i></th><th class="gsort" data-k="univ">University<i></i></th><th class="gsort" data-k="country">Country<i></i></th><th class="gsort" data-k="univLink">University link<i></i></th><th class="gsort" data-k="scholLink">Scholarship link<i></i></th><th class="gsort" data-k="deadline">Deadline<i></i></th><th class="gsort" data-k="reminder">Reminder<i></i></th><th class="gsort" data-k="english">English<i></i></th><th class="gsort" data-k="docs">Other documents<i></i></th><th class="gsort" data-k="lom">LoM<i></i></th><th class="gsort" data-k="proposal">Proposal<i></i></th><th class="gsort" data-k="recs">Rec. letters<i></i></th><th class="gsort" data-k="recCount">How many<i></i></th><th class="gsort" data-k="cover">Cover letter<i></i></th><th class="gsort" data-k="fee">App fee<i></i></th><th class="gsort" data-k="status">Status<i></i></th><th class="gsort" data-k="notes">Notes<i></i></th><th></th></tr></thead><tbody id="grows"></tbody></table><div class="empty" id="gempty" hidden>No programs yet. Click “Add program”.</div></div>
+</main>
+<script>
+const STATUS=["Yet to start","Skip","In progress","Completed","Submitted","Rejected"];
+const DONE=["Skip","Completed","Submitted","Rejected"];
+const KEY="phd-tracker-v1";
+let data=[],schol=[],progs=[];
+const gf={country:"",univ:""};
+const gm=r=>(!gf.country||String(r.country||"").trim().toLowerCase()===gf.country.toLowerCase())&&(!gf.univ||String(r.univ||"").trim().toLowerCase()===gf.univ.toLowerCase());
+try{data=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){data=[]}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+const parse=s=>s?new Date(s+"T00:00:00"):null;
+const sel=(f,opts,v,cls="")=>`<select data-f="${f}" class="${cls}">${opts.map(o=>`<option${o===v?" selected":""}>${o}</option>`).join("")}</select>`;
+const yn=["No","Yes"];
+
+STATUS.forEach(s=>$("f").insertAdjacentHTML("beforeend",`<option>${s}</option>`));
+
+const ymd=s=>s.replace(/-/g,"");
+const nextDay=s=>{const d=parse(s);d.setDate(d.getDate()+1);return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")};
+const gcal=(t,date,det)=>`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t)}&dates=${ymd(date)}/${nextDay(date)}&details=${encodeURIComponent(det||"")}`;
+const calLink=(pre,r,date)=>date?`<a class="open" target="_blank" rel="noopener" href="${esc(gcal(pre+": "+(r.name||"PhD application"),date,r.link))}">+ Google Calendar</a>`:"";
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fu=r=>r.emailed==="Yes"&&r.emailDate&&r.reminderSent!=="Yes"?addDays(r.emailDate,7):"";
+function blank(){return{id:Date.now()+Math.random(),name:"",univ:"",country:"",link:"",deadline:"",reminder:"",english:"No",docs:"",lom:"No",proposal:"No",recs:"No",recCount:"",cover:"No",feeOn:"No",fee:"",status:"Yet to start",notes:""}}
+
+function flags(r){
+  const t=today(),rd=parse(r.reminder),dd=parse(r.deadline);
+  const open=!DONE.includes(r.status);
+  const rem=open&&rd&&rd<=t;
+  let txt="",urg=false;
+  if(dd&&open){const n=Math.round((dd-t)/864e5);urg=n<=7;txt=n<0?`${-n}d overdue`:n===0?"due today":`${n}d left`}
+  return{rem,txt,urg,dim:r.status==="Skip"||r.status==="Rejected"};
+}
+
+function rowHTML(r){
+  const fl=flags(r);
+  return `<tr data-id="${r.id}" class="${fl.rem?"rem ":""}${fl.dim?"dim ":""}s-${r.status.replace(/\s/g,"")}">
+<td></td>
+<td class="c-name"><input data-f="name" value="${esc(r.name)}" placeholder="Project name"></td>
+<td class="c-name"><input data-f="univ" value="${esc(r.univ)}" placeholder="University"></td>
+<td class="c-sel"><input data-f="country" value="${esc(r.country)}" placeholder="Country"></td>
+<td class="c-link"><input data-f="link" value="${esc(r.link)}" placeholder="https://…">${r.link?`<a class="open" target="_blank" rel="noopener" href="${esc(r.link)}">open ↗</a>`:""}</td>
+<td class="c-date"><input type="date" data-f="deadline" value="${r.deadline}"><span class="dl ${fl.urg?"urg":""}">${fl.txt}</span>${calLink("Deadline",r,r.deadline)}</td>
+<td class="c-date"><input type="date" data-f="reminder" value="${r.reminder}">${calLink("Reminder",r,r.reminder)}</td>
+<td class="c-sel">${sel("english",["No","IELTS","TOEFL"],r.english)}</td>
+<td class="c-docs"><textarea data-f="docs" placeholder="e.g. transcripts, CV">${esc(r.docs)}</textarea></td>
+<td class="c-sel">${sel("lom",yn,r.lom)}</td>
+<td class="c-sel">${sel("proposal",yn,r.proposal)}</td>
+<td class="c-sel">${sel("recs",yn,r.recs)}</td>
+<td class="c-num"><input type="number" min="1" data-f="recCount" value="${r.recCount}" ${r.recs!=="Yes"?"disabled":""}></td>
+<td class="c-sel">${sel("cover",yn,r.cover)}</td>
+<td class="c-fee">${sel("feeOn",yn,r.feeOn)}<input data-f="fee" value="${esc(r.fee)}" placeholder="Amount" ${r.feeOn!=="Yes"?"hidden":""}></td>
+<td class="c-st">${sel("status",STATUS,r.status,"st")}</td>
+<td class="c-docs"><textarea data-f="notes" placeholder="Notes…">${esc(r.notes)}</textarea></td>
+<td><button class="x" data-del title="Delete">×</button></td></tr>`;
+}
+
+let sk="",sd=1;
+const val=(r,k)=>{if(k==="status")return STATUS.indexOf(r.status);if(k==="recCount")return r.recCount===""?null:+r.recCount;
+  if(k==="fee"){if(r.feeOn!=="Yes")return 0;const n=parseFloat(String(r.fee).replace(/[^0-9.]/g,""));return isNaN(n)?0.5:n}
+  return String(r[k]||"").toLowerCase()};
+document.querySelector("thead").addEventListener("click",e=>{const h=e.target.closest("th.sortable");if(!h)return;
+  if(sk!==h.dataset.k){sk=h.dataset.k;sd=1}else if(sd===1)sd=-1;else{sk="";sd=1}render()});
+function render(){
+  const q=$("q").value.toLowerCase(),f=$("f").value;
+  let list=data.filter(r=>gm(r)&&(!f||r.status===f)&&(!q||[r.name,r.univ,r.country].join(" ").toLowerCase().includes(q)));
+  if(sk){list=[...list].sort((a,b)=>{const x=val(a,sk),y=val(b,sk),ex=x===null||x==="",ey=y===null||y==="";
+    if(ex||ey)return ex&&ey?0:ex?1:-1;
+    return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*sd})}
+  document.querySelectorAll("th.sortable").forEach(h=>h.querySelector("i").textContent=h.dataset.k===sk?(sd>0?"▲":"▼"):"");
+  $("rows").innerHTML=list.map(rowHTML).join("");
+  $("empty").hidden=list.length>0;
+  stats();
+}
+
+function stats(){
+  const c=k=>data.filter(r=>r.status===k).length;
+  const t=today();
+  const soon=data.filter(r=>{const d=parse(r.deadline);return d&&!DONE.includes(r.status)&&d>=t&&(d-t)/864e5<=14}).length;
+  const items=[["Total",data.length],["In progress",c("In progress")],["Submitted",c("Submitted")],["Due in 14 days",soon],["Rejected",c("Rejected")]];
+  $("stats").innerHTML=items.map(([l,n])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+}
+
+$("rows").addEventListener("change",e=>{
+  const tr=e.target.closest("tr"),k=e.target.dataset.f;if(!tr||!k)return;
+  const r=data.find(x=>String(x.id)===tr.dataset.id);r[k]=e.target.value;
+  if(k==="recs"&&r.recs!=="Yes")r.recCount="";
+  save();
+  if(["recs","feeOn","status","deadline","reminder","link"].includes(k)&&!(k==="link"&&false)){
+    const y=window.scrollY;render();window.scrollTo(0,y);
+  }else stats();
+});
+$("rows").addEventListener("input",e=>{
+  const tr=e.target.closest("tr"),k=e.target.dataset.f;if(!tr||!k)return;
+  const r=data.find(x=>String(x.id)===tr.dataset.id);r[k]=e.target.value;save();
+});
+$("rows").addEventListener("click",e=>{
+  if(!e.target.matches("[data-del]"))return;
+  const tr=e.target.closest("tr"),r=data.find(x=>String(x.id)===tr.dataset.id);
+  if(confirm(`Delete "${r.name||"this row"}"?`)){calDel("a",r);data=data.filter(x=>x!==r);save();render()}
+});
+$("add").onclick=()=>{data.push(blank());save();$("q").value="";$("f").value="";render();
+  const i=$("rows").querySelector("tr:last-child input");i&&i.focus()};
+["q","f"].forEach(id=>$(id).addEventListener("input",render));
+$("ics").onclick=()=>{
+  const ev=[];const stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  [...data,...schol,...progs,...profs].forEach(r=>{[["Deadline",r.deadline],["Reminder",r.reminder],["Follow-up",fu(r)]].forEach(([p,d])=>{if(!d)return;
+    ev.push(["BEGIN:VEVENT",`UID:${r.id}-${p}@phd-tracker`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${ymd(d)}`,`DTEND;VALUE=DATE:${nextDay(d)}`,
+    `SUMMARY:${p}: ${(r.name||"PhD application").replace(/[,;\n]/g," ")}`,`DESCRIPTION:${(r.link||"").replace(/[,;\n]/g," ")}`,"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Reminder","TRIGGER:PT9H","END:VALARM","END:VEVENT"].join("\r\n"))})});
+  if(!ev.length){alert("Add a deadline or reminder date first.");return}
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//PhD Tracker//EN",...ev,"END:VCALENDAR"].join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));a.download="phd-deadlines.ics";a.click();
+};
+$("csv").onclick=()=>{
+  const h=["Project","University","Country","Link","Deadline","Reminder","English","Other documents","LoM","Proposal","Rec letters","How many","Cover letter","App fee","Status","Notes"];
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const rows=data.map(r=>[r.name,r.univ,r.country,r.link,r.deadline,r.reminder,r.english,r.docs,r.lom,r.proposal,r.recs,r.recCount,r.cover,r.feeOn==="Yes"?r.fee||"Yes":"No",r.status,r.notes].map(q).join(","));
+  const url=URL.createObjectURL(new Blob([[h.map(q).join(","),...rows].join("\n")],{type:"text/csv"}));
+  const a=document.createElement("a");a.href=url;a.download="phd-applications.csv";a.click();
+};
+if(!data.length){data.push(blank());save()}
+render();
+
+/* ---- Professors ---- */
+const PKEY="phd-profs-v1";
+let profs=[];try{profs=JSON.parse(localStorage.getItem(PKEY)||"[]")}catch(e){profs=[]}
+const psave=()=>{try{localStorage.setItem(PKEY,JSON.stringify(profs))}catch(e){}};
+let ps="",pd=1;
+const pblank=()=>({id:Date.now()+Math.random(),name:"",univ:"",country:"",lab:"",labLink:"",dept:"",deptLink:"",scholar:"",emailed:"No",emailDate:"",reminderSent:"No",notes:""});
+const pdays=r=>{const d=parse(r.emailDate);return r.emailed==="Yes"&&d?Math.round((today()-d)/864e5):null};
+const lnk=(f,r,ph)=>`<input data-f="${f}" value="${esc(r[f])}" placeholder="${ph}">${r[f]?`<a class="open" target="_blank" rel="noopener" href="${esc(r[f])}">open ↗</a>`:""}`;
+function prow(r){
+  const n=pdays(r),due=n!==null&&n>=7&&r.reminderSent!=="Yes",fu_=fu(r);
+  return `<tr data-id="${r.id}" class="${due?"fu":""}"><td></td>
+<td class="c-name"><input data-f="name" value="${esc(r.name)}" placeholder="Prof. name"></td>
+<td class="c-name"><input data-f="univ" value="${esc(r.univ)}" placeholder="University"></td>
+<td class="c-sel"><input data-f="country" value="${esc(r.country)}" placeholder="Country"></td>
+<td class="c-name"><input data-f="lab" value="${esc(r.lab)}" placeholder="Lab"></td>
+<td class="c-link">${lnk("labLink",r,"https://…")}</td>
+<td class="c-name"><input data-f="dept" value="${esc(r.dept)}" placeholder="Department"></td>
+<td class="c-link">${lnk("deptLink",r,"https://…")}</td>
+<td class="c-link">${lnk("scholar",r,"Scholar profile URL")}</td>
+<td class="c-sel">${sel("emailed",yn,r.emailed)}</td>
+<td class="c-date"><input type="date" data-f="emailDate" value="${r.emailDate}" ${r.emailed!=="Yes"?"disabled":""}>${n!==null?`<span class="dl ${due?"urg":""}">${n}d ago</span>`:""}${fu_?calLink("Follow-up",{name:r.name,link:r.labLink},fu_):""}</td>
+<td class="c-sel">${sel("reminderSent",yn,r.reminderSent)}</td>
+<td class="c-docs"><textarea data-f="notes" placeholder="Notes…">${esc(r.notes)}</textarea></td>
+<td><button class="x" data-del title="Delete">×</button></td></tr>`;
+}
+function prender(){
+  const q=$("pq").value.toLowerCase();
+  let l=profs.filter(r=>gm(r)&&(!q||[r.name,r.univ,r.country,r.lab,r.dept].join(" ").toLowerCase().includes(q)));
+  if(ps)l=[...l].sort((a,b)=>{const x=String(a[ps]||"").toLowerCase(),y=String(b[ps]||"").toLowerCase();
+    if(!x||!y)return x===y?0:!x?1:-1;return x.localeCompare(y,undefined,{numeric:true})*pd});
+  document.querySelectorAll("th.psort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===ps?(pd>0?"▲":"▼"):"");
+  $("prows").innerHTML=l.map(prow).join("");$("pempty").hidden=l.length>0;
+}
+const pget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[profs.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
+$("prows").addEventListener("input",e=>{const[r,k]=pget(e);if(r){r[k]=e.target.value;psave()}});
+$("prows").addEventListener("change",e=>{const[r,k]=pget(e);if(!r)return;r[k]=e.target.value;
+  if(k==="emailed"&&r.emailed!=="Yes")r.emailDate="";
+  psave();const y=window.scrollY;prender();window.scrollTo(0,y)});
+$("prows").addEventListener("click",e=>{if(!e.target.matches("[data-del]"))return;
+  const r=profs.find(x=>String(x.id)===e.target.closest("tr").dataset.id);
+  if(confirm(`Delete "${r.name||"this row"}"?`)){calDel("b",r);profs=profs.filter(x=>x!==r);psave();prender()}});
+$("ptable").querySelector("thead").addEventListener("click",e=>{const h=e.target.closest("th.psort");if(!h)return;
+  if(ps!==h.dataset.k){ps=h.dataset.k;pd=1}else if(pd===1)pd=-1;else{ps="";pd=1}prender()});
+$("padd").onclick=()=>{profs.push(pblank());psave();$("pq").value="";prender();const i=$("prows").querySelector("tr:last-child input");i&&i.focus()};
+$("pq").addEventListener("input",prender);
+$("pcsv").onclick=()=>{const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const h=["Professor","University","Country","Lab","Lab link","Department","Department link","Google Scholar","Emailed","Date emailed","Reminder sent","Notes"];
+  const rows=profs.map(r=>[r.name,r.univ,r.country,r.lab,r.labLink,r.dept,r.deptLink,r.scholar,r.emailed,r.emailDate,r.reminderSent,r.notes].map(q).join(","));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[h.map(q).join(","),...rows].join("\n")],{type:"text/csv"}));a.download="professors-emailed.csv";a.click()};
+if(!profs.length){profs.push(pblank());psave()}
+prender();
+
+/* ---- Scholarships ---- */
+const SKEY="phd-schol-v1";
+try{schol=JSON.parse(localStorage.getItem(SKEY)||"[]")}catch(e){schol=[]}
+const ssave=()=>{try{localStorage.setItem(SKEY,JSON.stringify(schol))}catch(e){}};
+let ss="",sdr=1;
+STATUS.forEach(x=>$("sf").insertAdjacentHTML("beforeend",`<option>${x}</option>`));
+const sblank=()=>({id:Date.now()+Math.random(),name:"",link:"",univ:"",country:"",program:"",deadline:"",reminder:"",english:"No",docs:"",lom:"No",proposal:"No",recs:"No",recCount:"",recsSent:"No",cover:"No",feeOn:"No",fee:"",uniApp:"No",uniApplied:"No",status:"Yet to start",notes:""});
+const ti=(f,r,ph,c)=>`<td class="${c}"><input data-f="${f}" value="${esc(r[f])}" placeholder="${ph}"></td>`;
+function srow(r){
+  const fl=flags(r);
+  return `<tr data-id="${r.id}" class="${fl.rem?"rem ":""}${fl.dim?"dim ":""}s-${r.status.replace(/\s/g,"")}"><td></td>
+${ti("name",r,"Scholarship name","c-name")}
+<td class="c-link"><input data-f="link" value="${esc(r.link)}" placeholder="https://…">${r.link?`<a class="open" target="_blank" rel="noopener" href="${esc(r.link)}">open ↗</a>`:""}</td>
+${ti("univ",r,"University","c-name")}${ti("country",r,"Country","c-sel")}${ti("program",r,"Program","c-name")}
+<td class="c-date"><input type="date" data-f="deadline" value="${r.deadline}"><span class="dl ${fl.urg?"urg":""}">${fl.txt}</span>${calLink("Deadline",r,r.deadline)}</td>
+<td class="c-date"><input type="date" data-f="reminder" value="${r.reminder}">${calLink("Reminder",r,r.reminder)}</td>
+<td class="c-sel">${sel("english",["No","IELTS","TOEFL"],r.english)}</td>
+<td class="c-docs"><textarea data-f="docs" placeholder="e.g. transcripts, CV">${esc(r.docs)}</textarea></td>
+<td class="c-sel">${sel("lom",yn,r.lom)}</td>
+<td class="c-sel">${sel("proposal",yn,r.proposal)}</td>
+<td class="c-sel">${sel("recs",yn,r.recs)}</td>
+<td class="c-num"><input type="number" min="1" data-f="recCount" value="${r.recCount}" ${r.recs!=="Yes"?"disabled":""}></td>
+<td class="c-sel">${r.recs==="Yes"?sel("recsSent",yn,r.recsSent):"<span class='dl'>–</span>"}</td>
+<td class="c-sel">${sel("cover",yn,r.cover)}</td>
+<td class="c-fee">${sel("feeOn",yn,r.feeOn)}<input data-f="fee" value="${esc(r.fee)}" placeholder="Amount" ${r.feeOn!=="Yes"?"hidden":""}></td>
+<td class="c-sel">${sel("uniApp",yn,r.uniApp)}</td>
+<td class="c-sel">${r.uniApp==="Yes"?sel("uniApplied",yn,r.uniApplied):"<span class='dl'>–</span>"}</td>
+<td class="c-st">${sel("status",STATUS,r.status,"st")}</td>
+<td class="c-docs"><textarea data-f="notes" placeholder="Notes…">${esc(r.notes)}</textarea></td>
+<td><button class="x" data-del title="Delete">×</button></td></tr>`;
+}
+function srender(){
+  const q=$("sq").value.toLowerCase(),f=$("sf").value;
+  let l=schol.filter(r=>gm(r)&&(!f||r.status===f)&&(!q||[r.name,r.univ,r.country,r.program].join(" ").toLowerCase().includes(q)));
+  if(ss)l=[...l].sort((a,b)=>{const x=val(a,ss),y=val(b,ss),ex=x===null||x==="",ey=y===null||y==="";
+    if(ex||ey)return ex&&ey?0:ex?1:-1;
+    return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*sdr});
+  document.querySelectorAll("th.ssort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===ss?(sdr>0?"▲":"▼"):"");
+  $("srows").innerHTML=l.map(srow).join("");$("sempty").hidden=l.length>0;
+}
+const sget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[schol.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
+$("srows").addEventListener("input",e=>{const[r,k]=sget(e);if(r){r[k]=e.target.value;ssave()}});
+$("srows").addEventListener("change",e=>{const[r,k]=sget(e);if(!r)return;r[k]=e.target.value;
+  if(k==="recs"&&r.recs!=="Yes"){r.recCount="";r.recsSent="No"}
+  if(k==="uniApp"&&r.uniApp!=="Yes")r.uniApplied="No";
+  ssave();const y=window.scrollY;srender();window.scrollTo(0,y)});
+$("srows").addEventListener("click",e=>{if(!e.target.matches("[data-del]"))return;
+  const r=schol.find(x=>String(x.id)===e.target.closest("tr").dataset.id);
+  if(confirm(`Delete "${r.name||"this row"}"?`)){calDel("c",r);schol=schol.filter(x=>x!==r);ssave();srender()}});
+$("stable").querySelector("thead").addEventListener("click",e=>{const h=e.target.closest("th.ssort");if(!h)return;
+  if(ss!==h.dataset.k){ss=h.dataset.k;sdr=1}else if(sdr===1)sdr=-1;else{ss="";sdr=1}srender()});
+$("sadd").onclick=()=>{schol.push(sblank());ssave();$("sq").value="";$("sf").value="";srender();const i=$("srows").querySelector("tr:last-child input");i&&i.focus()};
+["sq","sf"].forEach(id=>$(id).addEventListener("input",srender));
+$("scsv").onclick=()=>{const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const h=["Scholarship","Link","University","Country","Program","Deadline","Reminder","English","Other documents","LoM","Proposal","Rec letters","How many","Rec sent","Cover letter","App fee","Uni program app needed","Applied to program","Status","Notes"];
+  const rows=schol.map(r=>[r.name,r.link,r.univ,r.country,r.program,r.deadline,r.reminder,r.english,r.docs,r.lom,r.proposal,r.recs,r.recCount,r.recs==="Yes"?r.recsSent:"",r.cover,r.feeOn==="Yes"?r.fee||"Yes":"No",r.uniApp,r.uniApp==="Yes"?r.uniApplied:"",r.status,r.notes].map(q).join(","));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[h.map(q).join(","),...rows].join("\n")],{type:"text/csv"}));a.download="scholarships.csv";a.click()};
+if(!schol.length){schol.push(sblank());ssave()}
+srender();
+
+/* ---- University programs ---- */
+const GKEY="phd-progs-v1";
+try{progs=JSON.parse(localStorage.getItem(GKEY)||"[]")}catch(e){progs=[]}
+const gsave=()=>{try{localStorage.setItem(GKEY,JSON.stringify(progs))}catch(e){}};
+let gs="",gd=1;
+STATUS.forEach(x=>$("gsf").insertAdjacentHTML("beforeend",`<option>${x}</option>`));
+const gblank=()=>({id:Date.now()+Math.random(),name:"",link:"",univ:"",country:"",univLink:"",scholLink:"",deadline:"",reminder:"",english:"No",docs:"",lom:"No",proposal:"No",recs:"No",recCount:"",cover:"No",feeOn:"No",fee:"",status:"Yet to start",notes:""});
+const lk=(f,r,ph)=>`<td class="c-link"><input data-f="${f}" value="${esc(r[f])}" placeholder="${ph}">${r[f]?`<a class="open" target="_blank" rel="noopener" href="${esc(r[f])}">open ↗</a>`:""}</td>`;
+function grow(r){
+  const fl=flags(r);
+  return `<tr data-id="${r.id}" class="${fl.rem?"rem ":""}${fl.dim?"dim ":""}s-${r.status.replace(/\s/g,"")}"><td></td>
+${ti("name",r,"Program name","c-name")}${lk("link",r,"https://…")}${ti("univ",r,"University","c-name")}${ti("country",r,"Country","c-sel")}${lk("univLink",r,"https://…")}${lk("scholLink",r,"https://…")}
+<td class="c-date"><input type="date" data-f="deadline" value="${r.deadline}"><span class="dl ${fl.urg?"urg":""}">${fl.txt}</span>${calLink("Deadline",r,r.deadline)}</td>
+<td class="c-date"><input type="date" data-f="reminder" value="${r.reminder}">${calLink("Reminder",r,r.reminder)}</td>
+<td class="c-sel">${sel("english",["No","IELTS","TOEFL"],r.english)}</td>
+<td class="c-docs"><textarea data-f="docs" placeholder="e.g. transcripts, CV">${esc(r.docs)}</textarea></td>
+<td class="c-sel">${sel("lom",yn,r.lom)}</td>
+<td class="c-sel">${sel("proposal",yn,r.proposal)}</td>
+<td class="c-sel">${sel("recs",yn,r.recs)}</td>
+<td class="c-num"><input type="number" min="1" data-f="recCount" value="${r.recCount}" ${r.recs!=="Yes"?"disabled":""}></td>
+<td class="c-sel">${sel("cover",yn,r.cover)}</td>
+<td class="c-fee">${sel("feeOn",yn,r.feeOn)}<input data-f="fee" value="${esc(r.fee)}" placeholder="Amount" ${r.feeOn!=="Yes"?"hidden":""}></td>
+<td class="c-st">${sel("status",STATUS,r.status,"st")}</td>
+<td class="c-docs"><textarea data-f="notes" placeholder="Notes…">${esc(r.notes)}</textarea></td>
+<td><button class="x" data-del title="Delete">×</button></td></tr>`;
+}
+function grender(){
+  const q=$("gq").value.toLowerCase(),f=$("gsf").value;
+  let l=progs.filter(r=>gm(r)&&(!f||r.status===f)&&(!q||[r.name,r.univ,r.country].join(" ").toLowerCase().includes(q)));
+  if(gs)l=[...l].sort((a,b)=>{const x=val(a,gs),y=val(b,gs),ex=x===null||x==="",ey=y===null||y==="";
+    if(ex||ey)return ex&&ey?0:ex?1:-1;
+    return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*gd});
+  document.querySelectorAll("th.gsort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===gs?(gd>0?"▲":"▼"):"");
+  $("grows").innerHTML=l.map(grow).join("");$("gempty").hidden=l.length>0;
+}
+const gget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[progs.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
+$("grows").addEventListener("input",e=>{const[r,k]=gget(e);if(r){r[k]=e.target.value;gsave()}});
+$("grows").addEventListener("change",e=>{const[r,k]=gget(e);if(!r)return;r[k]=e.target.value;
+  if(k==="recs"&&r.recs!=="Yes")r.recCount="";
+  gsave();const y=window.scrollY;grender();window.scrollTo(0,y)});
+$("grows").addEventListener("click",e=>{if(!e.target.matches("[data-del]"))return;
+  const r=progs.find(x=>String(x.id)===e.target.closest("tr").dataset.id);
+  if(confirm(`Delete "${r.name||"this row"}"?`)){calDel("d",r);progs=progs.filter(x=>x!==r);gsave();grender();fopts()}});
+$("gtable").querySelector("thead").addEventListener("click",e=>{const h=e.target.closest("th.gsort");if(!h)return;
+  if(gs!==h.dataset.k){gs=h.dataset.k;gd=1}else if(gd===1)gd=-1;else{gs="";gd=1}grender()});
+$("gadd").onclick=()=>{progs.push(gblank());gsave();$("gq").value="";$("gsf").value="";grender();const i=$("grows").querySelector("tr:last-child input");i&&i.focus()};
+["gq","gsf"].forEach(id=>$(id).addEventListener("input",grender));
+$("gcsv").onclick=()=>{const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const h=["Program","Link","University","Country","University link","Scholarship link","Deadline","Reminder","English","Other documents","LoM","Proposal","Rec letters","How many","Cover letter","App fee","Status","Notes"];
+  const rows=progs.map(r=>[r.name,r.link,r.univ,r.country,r.univLink,r.scholLink,r.deadline,r.reminder,r.english,r.docs,r.lom,r.proposal,r.recs,r.recCount,r.cover,r.feeOn==="Yes"?r.fee||"Yes":"No",r.status,r.notes].map(q).join(","));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[h.map(q).join(","),...rows].join("\n")],{type:"text/csv"}));a.download="university-programs.csv";a.click()};
+if(!progs.length){progs.push(gblank());gsave()}
+grender();
+
+/* ---- Global country / university filter ---- */
+const renderAll=()=>{render();prender();srender();grender()};
+function fopts(){
+  const all=[...data,...profs,...schol,...progs];let changed=false;
+  [["gc","country","All countries"],["gu","univ","All universities"]].forEach(([id,k,label])=>{
+    const m=new Map();all.forEach(r=>{const v=String(r[k]||"").trim();if(v&&!m.has(v.toLowerCase()))m.set(v.toLowerCase(),v)});
+    const vals=[...m.values()].sort((a,b)=>a.localeCompare(b));
+    const el=$(id),cur=gf[k];
+    el.innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join("");
+    const keep=vals.find(v=>v.toLowerCase()===cur.toLowerCase());
+    el.value=keep||"";if(cur&&!keep){gf[k]="";changed=true}
+  });
+  if(changed)renderAll();
+}
+["gc","gu"].forEach(id=>$(id).addEventListener("change",()=>{gf.country=$("gc").value;gf.univ=$("gu").value;renderAll()}));
+$("gclear").onclick=()=>{gf.country=gf.univ="";$("gc").value=$("gu").value="";renderAll()};
+document.addEventListener("change",e=>{if(e.target.id!=="gc"&&e.target.id!=="gu")fopts()});
+fopts();
+$("bk").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({data,profs,schol,progs})],{type:"application/json"}));a.download="phd-tracker-backup.json";a.click()};
+$("rs").onclick=()=>$("rsf").click();
+$("rsf").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(!confirm("Replace current data with this backup?"))return;
+  data=o.data||[];profs=o.profs||[];schol=o.schol||[];progs=o.progs||[];save();psave();ssave();gsave();fopts();renderAll()}catch(err){alert("Could not read that file.")}});e.target.value=""};
+
+/* ---- Google Calendar sync ---- */
+const SEC={a:()=>data,b:()=>profs,c:()=>schol,d:()=>progs},TBODY={rows:"a",prows:"b",srows:"c",grows:"d"};
+const LABEL={a:"Application",b:"Professor",c:"Scholarship",d:"Program"},TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
+const ls={get:k=>{try{return localStorage.getItem(k)||""}catch(e){return""}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+$("cid").value=ls.get("phd-gc-cid");
+let tok="",texp=0,chain=Promise.resolve();
+const setSt=(t,err)=>{$("sst").textContent=t;$("sst").className=err?"err":""};
+const loadGIS=()=>new Promise((ok,no)=>{if(window.google&&google.accounts&&google.accounts.oauth2)return ok();
+  const x=document.createElement("script");x.src="https://accounts.google.com/gsi/client";x.onload=ok;x.onerror=()=>no(new Error("Could not load Google sign-in"));document.head.appendChild(x)});
+async function getToken(){
+  if(tok&&Date.now()<texp-60000)return tok;
+  const cid=$("cid").value.trim();if(!cid)throw new Error("Paste your Client ID first");
+  await loadGIS();
+  return new Promise((ok,no)=>{google.accounts.oauth2.initTokenClient({client_id:cid,scope:"https://www.googleapis.com/auth/calendar.events",
+    callback:t=>{if(t.error)return no(new Error(t.error));tok=t.access_token;texp=Date.now()+(t.expires_in||3600)*1000;ls.set("phd-gc-ok","1");ok(tok)},
+    error_callback:e=>no(new Error(e.type||"Sign-in failed"))}).requestAccessToken({prompt:ls.get("phd-gc-ok")?"":"consent"})});
+}
+async function calApi(method,path,body){
+  const t=await getToken();
+  return fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events"+path,{method,headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+}
+const eid=(sec,k,r)=>"phd"+sec+k+String(r.id).replace(/\D/g,"").slice(0,60);
+function wants(sec,r){
+  const nm=r.name||"Untitled",off=r.status==="Skip"||r.status==="Rejected",L=LABEL[sec];
+  if(sec==="b")return[{k:"f",date:fu(r),title:`Follow-up email: ${nm}`,mins:[0]}];
+  return[{k:"d",date:off?"":r.deadline,title:`${L} deadline: ${nm}`,mins:[0,1440]},{k:"r",date:off?"":r.reminder,title:`${L} reminder: ${nm}`,mins:[0]}];
+}
+async function pushEvent(sec,r,w){
+  const id=eid(sec,w.k,r);
+  if(!w.date){const d=await calApi("DELETE","/"+id);if(!d.ok&&d.status!==404&&d.status!==410)throw new Error("Delete failed ("+d.status+")");return}
+  const body={status:"confirmed",summary:w.title,description:[r.univ,r.country,r.link||r.labLink].filter(Boolean).join("\n"),
+    start:{dateTime:w.date+"T09:00:00",timeZone:TZ},end:{dateTime:w.date+"T09:30:00",timeZone:TZ},
+    reminders:{useDefault:false,overrides:w.mins.map(m=>({method:"popup",minutes:m}))}};
+  let res=await calApi("PATCH","/"+id,body);
+  if(res.status===404)res=await calApi("POST","",{...body,id});
+  if(!res.ok)throw new Error("Calendar error ("+res.status+")");
+}
+const enqueue=fn=>{chain=chain.then(fn).catch(e=>setSt("Error: "+e.message,true))};
+const done=()=>setSt("Synced "+new Date().toLocaleTimeString());
+function syncRow(sec,r){enqueue(async()=>{setSt("Syncing…");for(const w of wants(sec,r))await pushEvent(sec,r,w);done()})}
+function calDel(sec,r){if(!ls.get("phd-gc-ok"))return;enqueue(async()=>{for(const k of sec==="b"?["f"]:["d","r"])await calApi("DELETE","/"+eid(sec,k,r));done()})}
+$("gcon").onclick=()=>{ls.set("phd-gc-cid",$("cid").value.trim());setSt("Connecting…");getToken().then(()=>setSt("Connected ✓")).catch(e=>setSt("Error: "+e.message,true))};
+$("gall").onclick=()=>{ls.set("phd-gc-cid",$("cid").value.trim());enqueue(async()=>{
+  const rows=Object.keys(SEC).flatMap(k=>SEC[k]().map(r=>[k,r])).filter(([k,r])=>r.name||r.deadline||r.reminder||r.emailDate);let i=0;
+  for(const[k,r]of rows){setSt(`Syncing ${++i}/${rows.length}…`);for(const w of wants(k,r))if(w.date||ls.get("phd-gc-ok"))await pushEvent(k,r,w)}
+  done()})};
+const WATCH=["name","link","univ","country","deadline","reminder","emailDate","emailed","reminderSent","status"];
+document.addEventListener("change",e=>{
+  const f=e.target.dataset&&e.target.dataset.f,tr=e.target.closest&&e.target.closest("tr");
+  if(!f||!tr||!WATCH.includes(f)||!$("auto").checked||!ls.get("phd-gc-ok"))return;
+  const sec=TBODY[tr.parentElement.id],id=tr.dataset.id;if(!sec)return;
+  setTimeout(()=>{const r=SEC[sec]().find(x=>String(x.id)===id);if(r)syncRow(sec,r)},0);
+},true);
+if(ls.get("phd-gc-ok"))setSt("Previously connected. Click Connect or Sync all to refresh access.");
+</script>
+</body>
+</html>
