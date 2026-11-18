@@ -49,7 +49,7 @@ tr.fu{background:var(--warnbg)}tr.fu td:first-child{box-shadow:inset 3px 0 var(-
 .sync{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px}.sync .r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sync input[type=text]{flex:1;min-width:260px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 10px}#sst{color:var(--mute);font-size:12px}#sst.err{color:var(--warn)}.sync details{margin-top:8px;color:var(--mute);font-size:13px}.sync summary{cursor:pointer}.sync ol{margin:6px 0 0;padding-left:20px}.sync code{background:var(--bg);padding:1px 5px;border-radius:4px}
 .warn{background:var(--warnbg);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.warn[hidden]{display:none}.warn span{flex:1;min-width:220px}
 tr.s-Submitted,tr.s-Completed{background:var(--okbg)}tr.s-Submitted td:first-child,tr.s-Completed td:first-child{box-shadow:inset 3px 0 var(--ok)}
-tr.grp td{background:var(--bg);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);cursor:pointer;padding:9px 12px}tr.grp.gd td{color:var(--ok)}
+tr.grp td{background:var(--bg);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);cursor:pointer;padding:9px 12px}tr.grp.gd td{color:var(--ok)}tr.grp.gf td{color:var(--warn)}
 .cap{color:var(--mute);font-size:12px;margin:0 0 6px}.stats{margin-bottom:14px}
 .dl{display:block;font-size:11px;color:var(--mute);padding:0 6px}
 .dl.urg{color:var(--warn);font-weight:600}
@@ -93,7 +93,7 @@ tr.grp td{background:var(--bg);font-size:12px;font-weight:600;text-transform:upp
   <input type="search" id="q" placeholder="Search projects…">
   <select class="btn" id="f"><option value="">All statuses</option></select>
   <button class="btn" id="ics" title="Import this file into Google Calendar">Export all to calendar (.ics)</button>
-  <button class="btn" id="csv">Export CSV</button>
+  <button class="btn" id="mmA" title="Open rows whose deadline has passed become Missed">Mark overdue as Missed</button><button class="btn" id="csv">Export CSV</button>
 </div>
 <div class="wrap"><table>
 <thead><tr><th></th><th class="sortable" data-k="name">Project<i></i></th><th class="sortable" data-k="univ">University<i></i></th><th class="sortable" data-k="country">Country<i></i></th><th class="sortable" data-k="link">Link<i></i></th><th class="sortable" data-k="deadline">Deadline<i></i></th><th class="sortable" data-k="actual">Actual deadline<i></i></th><th class="sortable" data-k="reminder">Reminder<i></i></th><th class="sortable" data-k="english">English<i></i></th><th class="sortable" data-k="docs">Other documents<i></i></th><th class="sortable" data-k="lom">LoM<i></i></th><th class="sortable" data-k="proposal">Proposal<i></i></th><th class="sortable" data-k="recs">Rec. letters<i></i></th><th class="sortable" data-k="recCount">How many<i></i></th><th class="sortable" data-k="cover">Cover letter<i></i></th><th class="sortable" data-k="fee">App fee<i></i></th><th class="sortable" data-k="status">Status<i></i></th><th class="sortable" data-k="notes">Notes<i></i></th><th></th></tr></thead>
@@ -116,7 +116,7 @@ tr.grp td{background:var(--bg);font-size:12px;font-weight:600;text-transform:upp
   <button class="btn p" id="sadd">+ Add scholarship</button>
   <input type="search" id="sq" placeholder="Search scholarships…">
   <select class="btn" id="sf"><option value="">All statuses</option></select>
-  <button class="btn" id="scsv">Export CSV</button>
+  <button class="btn" id="mmS" title="Open rows whose deadline has passed become Missed">Mark overdue as Missed</button><button class="btn" id="scsv">Export CSV</button>
 </div>
 <div class="wrap"><table id="stable"><thead><tr><th></th><th class="ssort" data-k="name">Scholarship<i></i></th><th class="ssort" data-k="link">Link<i></i></th><th class="ssort" data-k="univ">University<i></i></th><th class="ssort" data-k="country">Country<i></i></th><th class="ssort" data-k="program">Program<i></i></th><th class="ssort" data-k="deadline">Deadline<i></i></th><th class="ssort" data-k="actual">Actual deadline<i></i></th><th class="ssort" data-k="reminder">Reminder<i></i></th><th class="ssort" data-k="english">English<i></i></th><th class="ssort" data-k="docs">Other documents<i></i></th><th class="ssort" data-k="lom">LoM<i></i></th><th class="ssort" data-k="proposal">Proposal<i></i></th><th class="ssort" data-k="recs">Rec. letters<i></i></th><th class="ssort" data-k="recCount">How many<i></i></th><th class="ssort" data-k="recsSent">Rec. sent?<i></i></th><th class="ssort" data-k="cover">Cover letter<i></i></th><th class="ssort" data-k="fee">App fee<i></i></th><th class="ssort" data-k="uniApp">Uni. program app needed?<i></i></th><th class="ssort" data-k="uniApplied">Applied to program?<i></i></th><th class="ssort" data-k="status">Status<i></i></th><th class="ssort" data-k="notes">Notes<i></i></th><th></th></tr></thead><tbody id="srows"></tbody></table><div class="empty" id="sempty" hidden>No scholarships yet. Click “Add scholarship”.</div></div>
 <h2 id="s-progs">University program applications</h2>
@@ -126,13 +126,13 @@ tr.grp td{background:var(--bg);font-size:12px;font-weight:600;text-transform:upp
   <button class="btn p" id="gadd">+ Add program</button>
   <input type="search" id="gq" placeholder="Search programs…">
   <select class="btn" id="gsf"><option value="">All statuses</option></select>
-  <button class="btn" id="gcsv">Export CSV</button>
+  <button class="btn" id="mmG" title="Open rows whose deadline has passed become Missed">Mark overdue as Missed</button><button class="btn" id="gcsv">Export CSV</button>
 </div>
 <div class="wrap"><table id="gtable"><thead><tr><th></th><th class="gsort" data-k="name">Program<i></i></th><th class="gsort" data-k="link">Link<i></i></th><th class="gsort" data-k="univ">University<i></i></th><th class="gsort" data-k="country">Country<i></i></th><th class="gsort" data-k="univLink">University link<i></i></th><th class="gsort" data-k="scholLink">Scholarship link<i></i></th><th class="gsort" data-k="deadline">Deadline<i></i></th><th class="gsort" data-k="actual">Actual deadline<i></i></th><th class="gsort" data-k="reminder">Reminder<i></i></th><th class="gsort" data-k="english">English<i></i></th><th class="gsort" data-k="docs">Other documents<i></i></th><th class="gsort" data-k="lom">LoM<i></i></th><th class="gsort" data-k="proposal">Proposal<i></i></th><th class="gsort" data-k="recs">Rec. letters<i></i></th><th class="gsort" data-k="recCount">How many<i></i></th><th class="gsort" data-k="cover">Cover letter<i></i></th><th class="gsort" data-k="fee">App fee<i></i></th><th class="gsort" data-k="status">Status<i></i></th><th class="gsort" data-k="notes">Notes<i></i></th><th></th></tr></thead><tbody id="grows"></tbody></table><div class="empty" id="gempty" hidden>No programs yet. Click “Add program”.</div></div>
 </main>
 <script>
-const STATUS=["Yet to start","Skip","In progress","Completed","Submitted","Rejected"];
-const DONE=["Skip","Completed","Submitted","Rejected"];
+const STATUS=["Yet to start","Skip","In progress","Completed","Submitted","Rejected","Missed"];
+const DONE=["Skip","Completed","Submitted","Rejected","Missed"];
 const KEY="phd-tracker-v1";
 let data=[],schol=[],progs=[],profs=[];
 const gf={country:"",univ:""};
@@ -165,16 +165,19 @@ function leftSpan(r,date){if(!date||DONE.includes(r.status))return"";const n=Mat
   return `<span class="dl ${n<=7?"urg":""}">${n<0?-n+"d overdue":n===0?"due today":n+"d left"}</span>`}
 const collapsed={};const isCol=k=>k in collapsed?collapsed[k]:k.endsWith("off");
 const colsOf=id=>$(id).closest("table").querySelector("thead tr").children.length;
-function grouped(list,id,key,rowFn){
-  const act=[],dn=[],off=[];list.forEach(r=>(r.status==="Submitted"||r.status==="Completed"?dn:r.status==="Skip"||r.status==="Rejected"?off:act).push(r));
-  const c=colsOf(id),hd=(g,label,n,cls)=>`<tr class="grp ${cls}" data-g="${key+g}"><td colspan="${c}">${isCol(key+g)?"▸":"▾"} ${label} (${n})</td></tr>`;
-  const part=(g,label,arr,cls)=>arr.length?hd(g,label,arr.length,cls)+(isCol(key+g)?"":arr.map(rowFn).join("")):"";
-  return (act.length&&(dn.length||off.length)?hd("act","Active",act.length,""):"")+(isCol(key+"act")?"":act.map(rowFn).join(""))+part("done","Submitted / Completed",dn,"gd")+part("off","Skipped / Rejected",off,"go");
+function grouped(list,id,key,rowFn,defs,groupOf){
+  const b={};defs.forEach(d=>b[d[0]]=[]);list.forEach(r=>(b[groupOf(r)]||b[defs[0][0]]).push(r));
+  const ne=defs.filter(d=>b[d[0]].length),c=colsOf(id);
+  if(ne.length<=1)return ne.length?b[ne[0][0]].map(rowFn).join(""):"";
+  return ne.map(([g,label,cls])=>{const k=key+g;return `<tr class="grp ${cls}" data-g="${k}"><td colspan="${c}">${isCol(k)?"▸":"▾"} ${label} (${b[g].length})</td></tr>`+(isCol(k)?"":b[g].map(rowFn).join(""))}).join("");
 }
+const byStatus=defs=>r=>(defs.find(d=>d[3].includes(r.status))||defs[0])[0];
+const DEFS_A=[["act","Yet to submit","",["Yet to start","In progress"]],["done","Submitted / Completed","gd",["Submitted","Completed"]],["off","Skipped / Rejected / Missed","go",["Skip","Rejected","Missed"]]];
+const DEFS_S=[["act","Yet to submit","",["Yet to start","In progress"]],["done","Submitted / Rejected","gd",["Submitted","Completed","Rejected"]],["off","Skipped / Missed","go",["Skip","Missed"]]];
 document.addEventListener("click",e=>{const g=e.target.closest&&e.target.closest("tr.grp");if(!g)return;const k=g.dataset.g;collapsed[k]=!isCol(k);renderAll()});
 function cards(f){const t=today(),c=x=>f.filter(r=>r.status===x).length;
   const soon=f.filter(r=>!DONE.includes(r.status)&&[r.deadline,r.actual].some(d=>{const x=parse(d);return x&&x>=t&&(x-t)/864e5<=14})).length;
-  return [["Total",f.length],["In progress",c("In progress")],["Completed",c("Completed")],["Submitted",c("Submitted")],["Due in 14 days",soon],["Skipped",c("Skip")],["Rejected",c("Rejected")]]}
+  return [["Total",f.length],["In progress",c("In progress")],["Completed",c("Completed")],["Submitted",c("Submitted")],["Due in 14 days",soon],["Skipped",c("Skip")],["Rejected",c("Rejected")],["Missed",c("Missed")]]}
 function blank(){return{id:Date.now()+Math.random(),name:"",univ:"",country:"",link:"",deadline:"",actual:"",reminder:"",english:"No",docs:"",lom:"No",proposal:"No",recs:"No",recCount:"",cover:"No",feeOn:"No",fee:"",status:"Yet to start",notes:""}}
 
 function flags(r){
@@ -183,7 +186,7 @@ function flags(r){
   const rem=open&&rd&&rd<=t;
   let txt="",urg=false;
   if(dd&&open){const n=Math.round((dd-t)/864e5);urg=n<=7;txt=n<0?`${-n}d overdue`:n===0?"due today":`${n}d left`}
-  return{rem,txt,urg,dim:r.status==="Skip"||r.status==="Rejected"};
+  return{rem,txt,urg,dim:r.status==="Skip"||r.status==="Rejected"||r.status==="Missed"};
 }
 
 function rowHTML(r){
@@ -223,7 +226,7 @@ function render(){
     if(ex||ey)return ex&&ey?0:ex?1:-1;
     return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*sd})}
   document.querySelectorAll("th.sortable").forEach(h=>h.querySelector("i").textContent=h.dataset.k===sk?(sd>0?"▲":"▼"):"");
-  $("rows").innerHTML=grouped(list,"rows","a",rowHTML);
+  $("rows").innerHTML=grouped(list,"rows","a",rowHTML,DEFS_A,byStatus(DEFS_A));
   $("empty").hidden=list.length>0;
   stats();
 }
@@ -301,13 +304,15 @@ function prow(r){
 <td class="c-docs"><textarea data-f="notes" placeholder="Notes…">${esc(r.notes)}</textarea></td>
 <td><button class="x" data-del title="Delete">×</button></td></tr>`;
 }
+const PDEFS=[["fu","Follow-up needed","gf"],["todo","Yet to email",""],["em","Emailed","gd"]];
+const pgroup=r=>{if(r.emailed!=="Yes")return"todo";const n=pdays(r);return n!==null&&n>=7&&r.reminderSent!=="Yes"?"fu":"em"};
 function prender(){
   const q=$("pq").value.toLowerCase();
   let l=profs.filter(r=>gm(r)&&(!q||[r.name,r.univ,r.country,r.lab,r.dept].join(" ").toLowerCase().includes(q)));
   if(ps)l=[...l].sort((a,b)=>{const x=String(a[ps]||"").toLowerCase(),y=String(b[ps]||"").toLowerCase();
     if(!x||!y)return x===y?0:!x?1:-1;return x.localeCompare(y,undefined,{numeric:true})*pd});
   document.querySelectorAll("th.psort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===ps?(pd>0?"▲":"▼"):"");
-  $("prows").innerHTML=l.map(prow).join("");$("pempty").hidden=l.length>0;stats();
+  $("prows").innerHTML=grouped(l,"prows","b",prow,PDEFS,pgroup);$("pempty").hidden=l.length>0;stats();
 }
 const pget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[profs.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
 $("prows").addEventListener("input",e=>{const[r,k]=pget(e);if(r){r[k]=e.target.value;psave()}});
@@ -367,7 +372,7 @@ function srender(){
     if(ex||ey)return ex&&ey?0:ex?1:-1;
     return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*sdr});
   document.querySelectorAll("th.ssort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===ss?(sdr>0?"▲":"▼"):"");
-  $("srows").innerHTML=grouped(l,"srows","c",srow);$("sempty").hidden=l.length>0;stats();
+  $("srows").innerHTML=grouped(l,"srows","c",srow,DEFS_S,byStatus(DEFS_S));$("sempty").hidden=l.length>0;stats();
 }
 const sget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[schol.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
 $("srows").addEventListener("input",e=>{const[r,k]=sget(e);if(r){r[k]=e.target.value;ssave()}});
@@ -423,7 +428,7 @@ function grender(){
     if(ex||ey)return ex&&ey?0:ex?1:-1;
     return (typeof x==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true}))*gd});
   document.querySelectorAll("th.gsort").forEach(h=>h.querySelector("i").textContent=h.dataset.k===gs?(gd>0?"▲":"▼"):"");
-  $("grows").innerHTML=grouped(l,"grows","d",grow);$("gempty").hidden=l.length>0;stats();
+  $("grows").innerHTML=grouped(l,"grows","d",grow,DEFS_S,byStatus(DEFS_S));$("gempty").hidden=l.length>0;stats();
 }
 const gget=e=>{const tr=e.target.closest("tr");return tr&&e.target.dataset.f?[progs.find(x=>String(x.id)===tr.dataset.id),e.target.dataset.f]:[]};
 $("grows").addEventListener("input",e=>{const[r,k]=gget(e);if(r){r[k]=e.target.value;gsave()}});
@@ -463,6 +468,12 @@ $("gclear").onclick=()=>{gf.country=gf.univ="";$("gc").value=$("gu").value="";re
 document.addEventListener("change",e=>{if(e.target.id!=="gc"&&e.target.id!=="gu")fopts()});
 fopts();
 $("bk").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({data,profs,schol,progs})],{type:"application/json"}));a.download="phd-tracker-backup.json";a.click();lss("phd-edits","0");$("warn").hidden=true};
+function markMissed(arr,sv,rn,sec){const t=today();
+  const hit=arr.filter(r=>["Yet to start","In progress"].includes(r.status)&&(d=>d&&d<t)(parse(r.actual||r.deadline)));
+  if(!hit.length){alert("No overdue open rows found (rows need a deadline in the past).");return}
+  if(!confirm(`Mark ${hit.length} overdue item(s) as Missed? Their calendar events will be removed.`))return;
+  hit.forEach(r=>{r.status="Missed";if(typeof syncRow==="function"&&ls.get("phd-gc-ok")&&$("auto").checked)syncRow(sec,r)});sv();rn();}
+$("mmA").onclick=()=>markMissed(data,save,render,"a");$("mmS").onclick=()=>markMissed(schol,ssave,srender,"c");$("mmG").onclick=()=>markMissed(progs,gsave,grender,"d");
 ready=true;
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if((+lsg("phd-edits")||0)>=8)warn("Reminder: you've made several changes since your last backup. Download one so nothing is lost.");
@@ -494,7 +505,7 @@ async function calApi(method,path,body){
 }
 const eid=(sec,k,r)=>"phd"+sec+k+String(r.id).replace(/\D/g,"").slice(0,60);
 function wants(sec,r){
-  const nm=r.name||"Untitled",off=r.status==="Skip"||r.status==="Rejected",L=LABEL[sec];
+  const nm=r.name||"Untitled",off=r.status==="Skip"||r.status==="Rejected"||r.status==="Missed",L=LABEL[sec];
   if(sec==="b")return[{k:"f",date:fu(r),title:`Follow-up email: ${nm}`,mins:[0]}];
   return[{k:"d",date:off?"":r.deadline,title:`${L} deadline: ${nm}`,mins:[0,1440]},{k:"r",date:off?"":r.reminder,title:`${L} reminder: ${nm}`,mins:[0]},{k:"e",date:off?"":r.actual,title:`${L} ACTUAL deadline: ${nm}`,mins:[0,1440,4320]}];
 }
